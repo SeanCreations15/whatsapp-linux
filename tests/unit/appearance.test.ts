@@ -56,6 +56,8 @@ describe("appearance stylesheet", () => {
     expect(css).toContain("--WDS-systems-bubble-surface-outgoing: #445566");
     expect(css).toContain('[role="tablist"] { background-color: #223344ff');
     expect(css).toContain('[data-testid="cell-frame-container"] { background-color: #334455ff');
+    expect(css).not.toContain('[data-testid="drawer-left"]');
+    expect(css).toContain('div:has([data-testid="chat-list-search-container"])');
     expect(css).toContain('font-family: "Noto Sans"');
     expect(css).toContain("animation-duration: .001ms");
   });

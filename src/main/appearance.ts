@@ -102,8 +102,10 @@ ${a.hideWallpaperPattern ? "[data-testid=\"conversation-panel-body\"]::before { 
 button, input, textarea, [role="button"], [role="dialog"] { border-radius: ${a.controlRadius}px !important; }
 img[draggable="false"], [data-testid*="avatar"] img { border-radius: ${a.avatarRadius}% !important; filter: ${a.grayscaleAvatars ? "grayscale(1)" : "none"}; }
 [data-icon] { ${a.monochromeIcons ? `filter: grayscale(1); color: ${a.accentColor} !important;` : ""} }
-[data-testid="chat-list"], [aria-label*="Chat list"] { width: ${a.sidebarWidth}px !important; min-width: ${a.sidebarWidth}px !important; }
-[data-testid="drawer-left"] { background-color: ${a.sidebarBackground}${panelAlpha} !important; backdrop-filter: blur(${a.panelBlur}px); }
+[data-testid="wa-web-main-screen"] > div > div:has([data-testid="chat-list-search-container"]) {
+  flex: 0 0 ${a.sidebarWidth}px !important; width: ${a.sidebarWidth}px !important;
+  min-width: ${a.sidebarWidth}px !important; max-width: ${a.sidebarWidth}px !important;
+}
 [data-testid="chatlist-header"] { background-color: ${a.sidebarHeaderBackground}${panelAlpha} !important; backdrop-filter: blur(${a.panelBlur}px); }
 [data-testid="chat-list-search-container"], [role="tablist"] { background-color: ${a.sidebarSearchBackground}${panelAlpha} !important; backdrop-filter: blur(${a.panelBlur}px); }
 [data-testid="chat-list-search-container"] div:has(> div > input[role="textbox"]),
