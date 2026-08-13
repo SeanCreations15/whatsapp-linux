@@ -29,8 +29,9 @@ Open **Settings → Themes** to enable local visual customization. The studio
 includes WhatsApp, Midnight, OLED, Nord, Dracula, Solarized, and Rosé Pine
 presets, all of which can be edited further. Controls cover:
 
-- Application, sidebar, panel, composer, text, link, selection, border, accent,
-  and incoming/outgoing message colours
+- Application, sidebar base, sidebar header, search/filter strip, search box,
+  chat-list rows, panel, composer, text, link, selection, border, accent, and
+  incoming/outgoing message colours
 - Font family, custom installed font, scale, weight, line height, and letter
   spacing
 - Interface density, sidebar and message width, avatar/bubble/control curves,

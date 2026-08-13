@@ -150,6 +150,9 @@ test("previews and saves an appearance preset from Settings", async () => {
   await page.getByRole("button", { name: "Themes" }).click();
   await page.getByRole("button", { name: /Midnight/ }).click();
   await expect(page.locator('input[name="accentColor"]')).toHaveValue("#53bdeb");
+  await page.getByRole("button", { name: "Colours" }).click();
+  await expect(page.locator('input[name="sidebarSearchBackground"]')).toHaveValue("#111b21");
+  await expect(page.locator('input[name="chatListBackground"]')).toHaveValue("#111b21");
   await expect(page.locator('input[name="enabled"]')).toBeChecked();
   await page.getByRole("button", { name: "Save all settings" }).click();
   await expect(page.locator("#status")).toHaveText("All settings saved");

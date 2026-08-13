@@ -19,6 +19,14 @@ describe("appearance validation", () => {
     expect(result.accentColor).toBe(defaultAppearance.accentColor);
   });
 
+  it("migrates saved themes into the new sidebar layers", () => {
+    const result = validateAppearance({ sidebarBackground: "#112233", panelBackground: "#445566" });
+    expect(result.sidebarHeaderBackground).toBe("#445566");
+    expect(result.sidebarSearchBackground).toBe("#112233");
+    expect(result.sidebarSearchInputBackground).toBe("#445566");
+    expect(result.chatListBackground).toBe("#112233");
+  });
+
   it("removes CSS constructs that can load remote resources", () => {
     const css = sanitizeCustomCss("@import 'https://tracker.test/x'; .x{background:url(https://tracker.test/i)} .y{color:red}");
     expect(css).not.toContain("@import");
@@ -37,6 +45,8 @@ describe("appearance stylesheet", () => {
       ...defaultAppearance,
       enabled: true,
       accentColor: "#112233",
+      sidebarSearchBackground: "#223344",
+      chatListBackground: "#334455",
       outgoingBubble: "#445566",
       fontFamily: "Noto Sans",
       reducedMotion: true
@@ -44,6 +54,8 @@ describe("appearance stylesheet", () => {
     expect(css).toContain("--WDS-accent: #112233");
     expect(css).toContain("--WDS-accent-RGB: 17, 34, 51");
     expect(css).toContain("--WDS-systems-bubble-surface-outgoing: #445566");
+    expect(css).toContain('[role="tablist"] { background-color: #223344ff');
+    expect(css).toContain('[data-testid="cell-frame-container"] { background-color: #334455ff');
     expect(css).toContain('font-family: "Noto Sans"');
     expect(css).toContain("animation-duration: .001ms");
   });

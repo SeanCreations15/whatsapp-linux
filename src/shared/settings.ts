@@ -26,6 +26,10 @@ export interface AppearanceSettings {
   accentColor: string;
   appBackground: string;
   sidebarBackground: string;
+  sidebarHeaderBackground: string;
+  sidebarSearchBackground: string;
+  sidebarSearchInputBackground: string;
+  chatListBackground: string;
   panelBackground: string;
   composerBackground: string;
   incomingBubble: string;
@@ -101,6 +105,10 @@ export const defaultAppearance: AppearanceSettings = {
   accentColor: "#1daa61",
   appBackground: "#ffffff",
   sidebarBackground: "#ffffff",
+  sidebarHeaderBackground: "#f7f5f3",
+  sidebarSearchBackground: "#ffffff",
+  sidebarSearchInputBackground: "#f0f2f5",
+  chatListBackground: "#ffffff",
   panelBackground: "#f7f5f3",
   composerBackground: "#ffffff",
   incomingBubble: "#ffffff",
@@ -189,6 +197,12 @@ export function validateAppearance(value: unknown): AppearanceSettings {
   for (const key of ["accentColor", "appBackground", "sidebarBackground", "panelBackground", "composerBackground", "incomingBubble", "outgoingBubble", "primaryText", "secondaryText", "borderColor", "linkColor", "selectionColor", "wallpaperColor", "gradientStart", "gradientEnd", "wallpaperOverlay"] as const) {
     result[key] = colorValue(input[key], result[key]);
   }
+  // Themes saved before the sidebar layers were split inherit their old palette
+  // instead of unexpectedly falling back to light defaults.
+  result.sidebarHeaderBackground = colorValue(input.sidebarHeaderBackground, result.panelBackground);
+  result.sidebarSearchBackground = colorValue(input.sidebarSearchBackground, result.sidebarBackground);
+  result.sidebarSearchInputBackground = colorValue(input.sidebarSearchInputBackground, result.panelBackground);
+  result.chatListBackground = colorValue(input.chatListBackground, result.sidebarBackground);
   result.wallpaperMode = enumValue(input.wallpaperMode, ["default", "solid", "gradient", "image"], result.wallpaperMode);
   result.gradientAngle = Math.round(numberInRange(input.gradientAngle, result.gradientAngle, 0, 360));
   result.wallpaperFile = stringValue(input.wallpaperFile, "", 180).replace(/[^a-zA-Z0-9._-]/g, "");
