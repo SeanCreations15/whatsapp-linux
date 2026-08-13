@@ -11,6 +11,27 @@ let fixtureUrl: string;
 let userDataDirectory: string;
 let electronApp: ElectronApplication | undefined;
 
+async function stopElectronApp(): Promise<void> {
+  const runningApp = electronApp;
+  electronApp = undefined;
+  if (!runningApp) return;
+
+  const child = runningApp.process();
+  if (child.exitCode !== null) return;
+  const exited = new Promise<void>((resolve) => {
+    const forceExit = setTimeout(() => {
+      child.kill();
+      resolve();
+    }, 5_000);
+    child.once("exit", () => {
+      clearTimeout(forceExit);
+      resolve();
+    });
+  });
+  await runningApp.evaluate(({ app }) => app.exit(0)).catch(() => undefined);
+  await exited;
+}
+
 test.beforeAll(async () => {
   const fixture = readFileSync(join(process.cwd(), "tests/fixtures/app.html"));
   server = createServer((_request, response) => {
@@ -39,8 +60,7 @@ test.beforeEach(async () => {
 });
 
 test.afterEach(async () => {
-  await electronApp?.close();
-  electronApp = undefined;
+  await stopElectronApp();
   await rm(userDataDirectory, { recursive: true, force: true });
 });
 
@@ -84,7 +104,7 @@ test("applies and persists the first-close tray choice", async () => {
 });
 
 test("shows local recovery UI when the remote application cannot load", async () => {
-  await electronApp?.close();
+  await stopElectronApp();
   const environment: Record<string, string> = Object.fromEntries(
     Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)
   );
