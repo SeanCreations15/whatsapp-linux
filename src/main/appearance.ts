@@ -116,6 +116,8 @@ header:not([data-testid="chatlist-header"]) { background-color: ${a.panelBackgro
 [data-testid="conversation-panel-wrapper"] footer { background-color: transparent !important; backdrop-filter: none; }
 [data-testid="compose-box"] div:has(> div > [data-testid="conversation-compose-box-input"]) { margin-block: 6px !important; }
 ${a.customScrollbars ? `* { scrollbar-color: ${a.secondaryText} transparent; scrollbar-width: auto; } ::-webkit-scrollbar { width: ${a.scrollbarWidth}px; height: ${a.scrollbarWidth}px; } ::-webkit-scrollbar-thumb { background: ${a.secondaryText}; border-radius: 999px; } ::-webkit-scrollbar-track { background: transparent; }` : ""}
+[data-testid="wa-web-main-screen"] div:has(> div > [data-testid="chat-list"]) { scrollbar-width: none !important; }
+[data-testid="wa-web-main-screen"] div:has(> div > [data-testid="chat-list"])::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }
 ${a.reducedMotion ? "*, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }" : ""}
 ${customCss}
 `;

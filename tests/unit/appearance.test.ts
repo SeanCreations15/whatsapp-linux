@@ -62,6 +62,8 @@ describe("appearance stylesheet", () => {
     expect(css).toContain('[data-testid="conversation-panel-wrapper"] footer { background-color: transparent');
     expect(css).toContain('[data-testid="compose-box"] div:has(> div > [data-testid="conversation-compose-box-input"]) { margin-block: 6px');
     expect(css).not.toContain('[data-testid="conversation-compose-box-input"] { min-height:');
+    expect(css).toContain('div:has(> div > [data-testid="chat-list"]) { scrollbar-width: none');
+    expect(css).toContain('div:has(> div > [data-testid="chat-list"])::-webkit-scrollbar');
     expect(css).toContain('font-family: "Noto Sans"');
     expect(css).toContain("animation-duration: .001ms");
   });

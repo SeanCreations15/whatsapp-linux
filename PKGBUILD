@@ -1,6 +1,6 @@
 # Maintainer: WhatsApp Linux contributors
 pkgname=whatsapp-linux
-pkgver=0.2.3
+pkgver=0.2.4
 pkgrel=1
 pkgdesc="Unofficial WhatsApp Web desktop client for Linux"
 arch=('x86_64')
