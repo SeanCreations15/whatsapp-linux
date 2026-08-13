@@ -93,7 +93,6 @@ a { color: ${a.linkColor} !important; text-decoration: ${a.underlineLinks ? "und
 ${wallpaperRules}
 ${a.hideWallpaperPattern ? "[data-testid=\"conversation-panel-body\"]::before { display: none !important; }" : ""}
 [data-testid="cell-frame-container"], [role="listitem"] { min-height: calc(72px * ${a.density}) !important; }
-[data-testid="conversation-compose-box-input"] { min-height: calc(42px * ${a.density}) !important; }
 [data-testid="msg-container"] { margin-block: ${a.bubbleSpacing}px !important; max-width: ${a.messageWidth}% !important; }
 [data-testid="msg-container"] > div, [data-testid="msg-container"] [class*="copyable"] {
   border-radius: ${a.bubbleRadius}px !important; border-width: ${a.borderWidth}px !important;
@@ -106,12 +105,16 @@ img[draggable="false"], [data-testid*="avatar"] img { border-radius: ${a.avatarR
   flex: 0 0 ${a.sidebarWidth}px !important; width: ${a.sidebarWidth}px !important;
   min-width: ${a.sidebarWidth}px !important; max-width: ${a.sidebarWidth}px !important;
 }
+[data-testid="drawer-left"] { width: ${a.sidebarWidth}px !important; min-width: ${a.sidebarWidth}px !important; max-width: ${a.sidebarWidth}px !important; }
 [data-testid="chatlist-header"] { background-color: ${a.sidebarHeaderBackground}${panelAlpha} !important; backdrop-filter: blur(${a.panelBlur}px); }
 [data-testid="chat-list-search-container"], [role="tablist"] { background-color: ${a.sidebarSearchBackground}${panelAlpha} !important; backdrop-filter: blur(${a.panelBlur}px); }
+[data-testid="chat-list-search-container"] { margin-bottom: 0 !important; }
 [data-testid="chat-list-search-container"] div:has(> div > input[role="textbox"]),
 [data-testid="chat-list-search-container"] div:has(> input[role="textbox"]) { background-color: ${a.sidebarSearchInputBackground} !important; }
 [data-testid="chat-list"], [data-testid="cell-frame-container"] { background-color: ${a.chatListBackground}${panelAlpha} !important; backdrop-filter: blur(${a.panelBlur}px); }
-header:not([data-testid="chatlist-header"]), footer { background-color: ${a.panelBackground}${panelAlpha} !important; backdrop-filter: blur(${a.panelBlur}px); }
+header:not([data-testid="chatlist-header"]) { background-color: ${a.panelBackground}${panelAlpha} !important; backdrop-filter: blur(${a.panelBlur}px); }
+[data-testid="conversation-panel-wrapper"] footer { background-color: transparent !important; backdrop-filter: none; }
+[data-testid="compose-box"] div:has(> div > [data-testid="conversation-compose-box-input"]) { margin-block: 6px !important; }
 ${a.customScrollbars ? `* { scrollbar-color: ${a.secondaryText} transparent; scrollbar-width: auto; } ::-webkit-scrollbar { width: ${a.scrollbarWidth}px; height: ${a.scrollbarWidth}px; } ::-webkit-scrollbar-thumb { background: ${a.secondaryText}; border-radius: 999px; } ::-webkit-scrollbar-track { background: transparent; }` : ""}
 ${a.reducedMotion ? "*, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }" : ""}
 ${customCss}
