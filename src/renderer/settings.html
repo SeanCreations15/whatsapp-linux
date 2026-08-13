@@ -7,36 +7,121 @@
     <title>WhatsApp Linux Settings</title>
     <link rel="stylesheet" href="./base.css" />
   </head>
-  <body>
-    <main>
-      <header class="brand">
-        <img src="./icon.svg" alt="" />
-        <div><h1>Settings</h1><p>WhatsApp Linux desktop preferences</p></div>
+  <body class="settings-page">
+    <main class="settings-shell">
+      <header class="settings-header">
+        <div class="brand"><img src="./icon.svg" alt="" /><div><h1>WhatsApp Linux</h1><p>Settings and appearance studio</p></div></div>
+        <div class="header-actions"><button id="import-theme" type="button">Import</button><button id="export-theme" type="button">Export</button><button id="reset-appearance" type="button" class="danger-subtle">Reset appearance</button></div>
       </header>
-      <form id="settings-form" class="card">
-        <div class="field">
-          <label for="close-behavior">When I close the window</label>
-          <select id="close-behavior" name="closeBehavior">
-            <option value="ask">Ask me</option>
-            <option value="tray">Keep running in the tray</option>
-            <option value="quit">Quit the application</option>
-          </select>
-        </div>
-        <div class="field check">
-          <input id="launch-at-login" name="launchAtLogin" type="checkbox" />
-          <div><label for="launch-at-login">Launch at login</label><div class="hint">Create an XDG autostart entry for your desktop session.</div></div>
-        </div>
-        <div class="field check">
-          <input id="start-hidden" name="startHidden" type="checkbox" />
-          <div><label for="start-hidden">Start hidden</label><div class="hint">When launched at login, remain in the tray until opened.</div></div>
-        </div>
-        <div class="field check">
-          <input id="spellcheck" name="spellcheck" type="checkbox" />
-          <div><label for="spellcheck">Enable spell checking</label><div class="hint">Changes apply immediately to the persistent WhatsApp session.</div></div>
-        </div>
-        <div class="actions"><button class="primary" type="submit">Save settings</button><span id="status" class="status" role="status"></span></div>
-      </form>
-      <p class="disclaimer">Unofficial software. Not affiliated with, authorized, maintained, sponsored, or endorsed by WhatsApp LLC or Meta Platforms, Inc.</p>
+      <div class="settings-layout">
+        <nav class="settings-nav" aria-label="Settings sections">
+          <button type="button" class="nav-item active" data-tab="general">General</button>
+          <button type="button" class="nav-item" data-tab="themes">Themes</button>
+          <button type="button" class="nav-item" data-tab="typography">Typography</button>
+          <button type="button" class="nav-item" data-tab="colors">Colours</button>
+          <button type="button" class="nav-item" data-tab="layout">Layout</button>
+          <button type="button" class="nav-item" data-tab="wallpaper">Wallpaper</button>
+          <button type="button" class="nav-item" data-tab="effects">Effects</button>
+          <button type="button" class="nav-item" data-tab="advanced">Advanced</button>
+        </nav>
+
+        <form id="settings-form" class="settings-content">
+          <section class="settings-section active" data-section="general">
+            <div class="section-heading"><h2>General</h2><p>Desktop integration and application behaviour.</p></div>
+            <div class="setting-row"><div><label for="close-behavior">When I close the window</label><span>Choose whether closing exits or keeps notifications active.</span></div><select id="close-behavior"><option value="ask">Ask me</option><option value="tray">Keep running in tray</option><option value="quit">Quit application</option></select></div>
+            <label class="setting-row toggle"><div><strong>Launch at login</strong><span>Create an XDG autostart entry.</span></div><input id="launch-at-login" type="checkbox" /></label>
+            <label class="setting-row toggle"><div><strong>Start hidden</strong><span>Remain in the tray when launched at login.</span></div><input id="start-hidden" type="checkbox" /></label>
+            <label class="setting-row toggle"><div><strong>Spell checking</strong><span>Use Chromium’s spell checker in message fields.</span></div><input id="spellcheck" type="checkbox" /></label>
+          </section>
+
+          <section class="settings-section" data-section="themes">
+            <div class="section-heading"><h2>Themes</h2><p>Start with a preset, then adjust every detail in the other sections.</p></div>
+            <label class="setting-row toggle featured"><div><strong>Enable custom appearance</strong><span>Switch all WhatsApp Linux styling overrides on or off.</span></div><input name="enabled" data-appearance type="checkbox" /></label>
+            <div class="preset-grid" role="radiogroup" aria-label="Theme preset">
+              <button type="button" class="preset" data-preset="whatsapp"><i></i><b>WhatsApp</b><span>Clean original light</span></button>
+              <button type="button" class="preset" data-preset="midnight"><i></i><b>Midnight</b><span>Deep blue-grey</span></button>
+              <button type="button" class="preset" data-preset="oled"><i></i><b>OLED</b><span>True black</span></button>
+              <button type="button" class="preset" data-preset="nord"><i></i><b>Nord</b><span>Arctic calm</span></button>
+              <button type="button" class="preset" data-preset="dracula"><i></i><b>Dracula</b><span>Vivid dark</span></button>
+              <button type="button" class="preset" data-preset="solarized"><i></i><b>Solarized</b><span>Low contrast</span></button>
+              <button type="button" class="preset" data-preset="rose"><i></i><b>Rosé Pine</b><span>Muted warmth</span></button>
+              <button type="button" class="preset" data-preset="custom"><i></i><b>Custom</b><span>Your palette</span></button>
+            </div>
+            <div class="setting-row"><div><label for="native-theme">Native controls theme</label><span>Window menus, dialogs, and colour-scheme preference.</span></div><select id="native-theme" name="nativeTheme" data-appearance><option value="system">Follow system</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
+          </section>
+
+          <section class="settings-section" data-section="typography">
+            <div class="section-heading"><h2>Typography</h2><p>Control the typeface, scale, weight, rhythm, and spacing.</p></div>
+            <div class="setting-row"><div><label for="font-family">Font family</label><span>Choose an installed system font.</span></div><select id="font-family" name="fontFamily" data-appearance><option value="system-ui">System UI</option><option value="Inter">Inter</option><option value="Noto Sans">Noto Sans</option><option value="Roboto">Roboto</option><option value="Ubuntu">Ubuntu</option><option value="Cantarell">Cantarell</option><option value="Atkinson Hyperlegible">Atkinson Hyperlegible</option><option value="monospace">Monospace</option></select></div>
+            <div class="setting-row"><div><label for="custom-font">Custom installed font</label><span>Overrides the dropdown when non-empty.</span></div><input id="custom-font" name="customFontFamily" data-appearance type="text" maxlength="120" placeholder="e.g. Fira Sans" /></div>
+            <div class="setting-range"><label for="font-scale">Text scale <output data-output="fontScale"></output></label><input id="font-scale" name="fontScale" data-appearance type="range" min="0.75" max="1.5" step="0.05" /></div>
+            <div class="setting-range"><label for="font-weight">Font weight <output data-output="fontWeight"></output></label><input id="font-weight" name="fontWeight" data-appearance type="range" min="300" max="700" step="50" /></div>
+            <div class="setting-range"><label for="line-height">Line height <output data-output="lineHeight"></output></label><input id="line-height" name="lineHeight" data-appearance type="range" min="1" max="1.8" step="0.05" /></div>
+            <div class="setting-range"><label for="letter-spacing">Letter spacing <output data-output="letterSpacing"></output></label><input id="letter-spacing" name="letterSpacing" data-appearance type="range" min="-0.5" max="2" step="0.1" /></div>
+          </section>
+
+          <section class="settings-section" data-section="colors">
+            <div class="section-heading"><h2>Colour palette</h2><p>Override the main WhatsApp design tokens. Changes preview instantly.</p></div>
+            <div class="color-grid">
+              <label>Accent<input name="accentColor" data-appearance type="color" /></label><label>Application<input name="appBackground" data-appearance type="color" /></label>
+              <label>Sidebar<input name="sidebarBackground" data-appearance type="color" /></label><label>Panels<input name="panelBackground" data-appearance type="color" /></label>
+              <label>Composer<input name="composerBackground" data-appearance type="color" /></label><label>Incoming bubble<input name="incomingBubble" data-appearance type="color" /></label>
+              <label>Outgoing bubble<input name="outgoingBubble" data-appearance type="color" /></label><label>Primary text<input name="primaryText" data-appearance type="color" /></label>
+              <label>Secondary text<input name="secondaryText" data-appearance type="color" /></label><label>Borders<input name="borderColor" data-appearance type="color" /></label>
+              <label>Links/actions<input name="linkColor" data-appearance type="color" /></label><label>Text selection<input name="selectionColor" data-appearance type="color" /></label>
+            </div>
+          </section>
+
+          <section class="settings-section" data-section="layout">
+            <div class="section-heading"><h2>Layout and shape</h2><p>Adjust density, proportions, curves, borders, and elevation.</p></div>
+            <div class="setting-range"><label>Interface density <output data-output="density"></output></label><input name="density" data-appearance type="range" min="0.75" max="1.3" step="0.05" /></div>
+            <div class="setting-range"><label>Sidebar width <output data-output="sidebarWidth"></output></label><input name="sidebarWidth" data-appearance type="range" min="260" max="600" step="10" /></div>
+            <div class="setting-range"><label>Maximum message width <output data-output="messageWidth"></output></label><input name="messageWidth" data-appearance type="range" min="40" max="95" step="1" /></div>
+            <div class="setting-range"><label>Message bubble radius <output data-output="bubbleRadius"></output></label><input name="bubbleRadius" data-appearance type="range" min="0" max="28" step="1" /></div>
+            <div class="setting-range"><label>Control radius <output data-output="controlRadius"></output></label><input name="controlRadius" data-appearance type="range" min="0" max="24" step="1" /></div>
+            <div class="setting-range"><label>Avatar roundness <output data-output="avatarRadius"></output></label><input name="avatarRadius" data-appearance type="range" min="0" max="50" step="1" /></div>
+            <div class="setting-range"><label>Border width <output data-output="borderWidth"></output></label><input name="borderWidth" data-appearance type="range" min="0" max="3" step="0.5" /></div>
+            <div class="setting-range"><label>Shadow strength <output data-output="shadowStrength"></output></label><input name="shadowStrength" data-appearance type="range" min="0" max="60" step="2" /></div>
+            <div class="setting-range"><label>Space between bubbles <output data-output="bubbleSpacing"></output></label><input name="bubbleSpacing" data-appearance type="range" min="0" max="12" step="1" /></div>
+          </section>
+
+          <section class="settings-section" data-section="wallpaper">
+            <div class="section-heading"><h2>Chat wallpaper</h2><p>Use the WhatsApp default, a colour, gradient, or your own local image.</p></div>
+            <div class="setting-row"><div><label>Wallpaper type</label><span>The image is copied into the app’s private data folder.</span></div><select name="wallpaperMode" data-appearance><option value="default">WhatsApp default</option><option value="solid">Solid colour</option><option value="gradient">Gradient</option><option value="image">Local image</option></select></div>
+            <div class="color-grid compact"><label>Solid colour<input name="wallpaperColor" data-appearance type="color" /></label><label>Gradient start<input name="gradientStart" data-appearance type="color" /></label><label>Gradient end<input name="gradientEnd" data-appearance type="color" /></label><label>Overlay colour<input name="wallpaperOverlay" data-appearance type="color" /></label></div>
+            <div class="setting-range"><label>Gradient angle <output data-output="gradientAngle"></output></label><input name="gradientAngle" data-appearance type="range" min="0" max="360" step="1" /></div>
+            <div class="wallpaper-picker"><button id="choose-wallpaper" type="button">Choose image…</button><button id="clear-wallpaper" type="button">Remove image</button><span id="wallpaper-name">No image selected</span></div>
+            <div class="setting-row"><div><label>Image fit</label></div><select name="wallpaperSize" data-appearance><option value="cover">Cover</option><option value="contain">Contain</option><option value="tile">Tile</option></select></div>
+            <div class="setting-row"><div><label>Image position</label></div><select name="wallpaperPosition" data-appearance><option value="center">Centre</option><option value="top">Top</option><option value="bottom">Bottom</option><option value="left">Left</option><option value="right">Right</option></select></div>
+            <div class="setting-range"><label>Wallpaper opacity <output data-output="wallpaperOpacity"></output></label><input name="wallpaperOpacity" data-appearance type="range" min="0.05" max="1" step="0.05" /></div>
+            <div class="setting-range"><label>Wallpaper blur <output data-output="wallpaperBlur"></output></label><input name="wallpaperBlur" data-appearance type="range" min="0" max="20" step="1" /></div>
+            <div class="setting-range"><label>Overlay strength <output data-output="wallpaperOverlayOpacity"></output></label><input name="wallpaperOverlayOpacity" data-appearance type="range" min="0" max="0.9" step="0.05" /></div>
+            <label class="setting-row toggle"><div><strong>Hide WhatsApp pattern</strong><span>Remove the default doodle texture.</span></div><input name="hideWallpaperPattern" data-appearance type="checkbox" /></label>
+          </section>
+
+          <section class="settings-section" data-section="effects">
+            <div class="section-heading"><h2>Effects and accessibility</h2><p>Visual polish and options that improve clarity or reduce distraction.</p></div>
+            <div class="setting-range"><label>Panel backdrop blur <output data-output="panelBlur"></output></label><input name="panelBlur" data-appearance type="range" min="0" max="30" step="1" /></div>
+            <label class="setting-row toggle"><div><strong>Translucent panels</strong><span>Blend navigation and toolbars with the content behind them.</span></div><input name="translucentPanels" data-appearance type="checkbox" /></label>
+            <label class="setting-row toggle"><div><strong>Reduce motion</strong><span>Minimize transitions, animations, and smooth scrolling.</span></div><input name="reducedMotion" data-appearance type="checkbox" /></label>
+            <label class="setting-row toggle"><div><strong>High contrast</strong><span>Increase overall visual separation.</span></div><input name="highContrast" data-appearance type="checkbox" /></label>
+            <label class="setting-row toggle"><div><strong>Grayscale avatars</strong><span>Remove colour from profile photographs.</span></div><input name="grayscaleAvatars" data-appearance type="checkbox" /></label>
+            <label class="setting-row toggle"><div><strong>Monochrome icons</strong><span>Use a calmer, accent-tinted icon treatment.</span></div><input name="monochromeIcons" data-appearance type="checkbox" /></label>
+            <label class="setting-row toggle"><div><strong>Underline links</strong><span>Make links easier to identify without relying on colour.</span></div><input name="underlineLinks" data-appearance type="checkbox" /></label>
+            <label class="setting-row toggle"><div><strong>Custom scrollbars</strong><span>Match scrollbars to the selected palette.</span></div><input name="customScrollbars" data-appearance type="checkbox" /></label>
+            <div class="setting-range"><label>Scrollbar width <output data-output="scrollbarWidth"></output></label><input name="scrollbarWidth" data-appearance type="range" min="4" max="20" step="1" /></div>
+          </section>
+
+          <section class="settings-section" data-section="advanced">
+            <div class="section-heading"><h2>Advanced CSS</h2><p>Add local CSS for details not covered above. Network-loading <code>url()</code> and <code>@import</code> rules are removed for privacy.</p></div>
+            <textarea name="customCss" data-appearance class="code-editor" maxlength="50000" spellcheck="false" placeholder="/* Example */&#10;[data-testid='msg-container'] { opacity: .95; }"></textarea>
+            <p class="warning">WhatsApp can change its internal markup without notice. Use design tokens where possible and reset this field if the interface breaks.</p>
+          </section>
+
+          <footer class="save-bar"><span id="status" class="status" role="status">Changes preview live</span><button class="primary" type="submit">Save all settings</button></footer>
+        </form>
+      </div>
+      <p class="disclaimer">Unofficial software. Appearance changes are local to this desktop client and are not visible to your contacts.</p>
     </main>
     <script type="module" src="./settings.ts"></script>
   </body>

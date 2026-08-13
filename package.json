@@ -1,6 +1,6 @@
 {
   "name": "whatsapp-linux",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "An unofficial WhatsApp Web desktop client for Arch Linux",
   "homepage": "https://github.com/SeanCreations15/whatsapp-linux#readme",
   "repository": {
@@ -40,12 +40,16 @@
       {
         "from": "assets",
         "to": "assets",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "linux": {
       "syncDesktopName": true,
-      "target": ["AppImage"],
+      "target": [
+        "AppImage"
+      ],
       "category": "Network;Chat",
       "icon": "assets/icon.png",
       "executableName": "whatsapp-linux",

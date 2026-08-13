@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,11 +11,14 @@ import {
   type IpcMainInvokeEvent,
   Menu,
   nativeImage,
+  nativeTheme,
   session,
   shell,
   Tray
 } from "electron";
-import type { AppSettings } from "../shared/settings";
+import type { AppearanceSettings, AppSettings } from "../shared/settings";
+import { validateAppearance } from "../shared/settings";
+import { buildAppearanceCss, wallpaperDataUrl } from "./appearance";
 import { setAutostart } from "./autostart";
 import {
   chromeCompatibleUserAgent,
@@ -52,6 +55,8 @@ let isQuitting = false;
 let unreadCount = 0;
 let lastLoadError = "";
 let closePromptOpen = false;
+const insertedAppearanceKeys = new Map<number, string>();
+let previewAppearance: AppearanceSettings | null = null;
 
 function rendererFile(name: "settings.html" | "error.html"): string {
   return join(currentDirectory, `../renderer/${name}`);
@@ -68,6 +73,29 @@ function assetPath(name: string): string {
 
 function configHome(): string {
   return process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
+}
+
+function appearanceDirectory(): string {
+  return join(app.getPath("userData"), "appearance");
+}
+
+async function applyAppearance(window: BrowserWindow, appearance = previewAppearance ?? store.get().appearance): Promise<void> {
+  if (window.isDestroyed() || !isTrustedWhatsAppUrl(window.webContents.getURL())) return;
+  const previousKey = insertedAppearanceKeys.get(window.webContents.id);
+  if (previousKey) {
+    await window.webContents.removeInsertedCSS(previousKey).catch(() => undefined);
+    insertedAppearanceKeys.delete(window.webContents.id);
+  }
+  const css = buildAppearanceCss(appearance, wallpaperDataUrl(appearance, appearanceDirectory()));
+  if (css) {
+    const key = await window.webContents.insertCSS(css, { cssOrigin: "user" });
+    insertedAppearanceKeys.set(window.webContents.id, key);
+  }
+}
+
+function applyAppearanceToWhatsAppWindows(appearance: AppearanceSettings): void {
+  nativeTheme.themeSource = appearance.nativeTheme;
+  for (const window of BrowserWindow.getAllWindows()) void applyAppearance(window, appearance);
 }
 
 function showMainWindow(): void {
@@ -175,6 +203,7 @@ function attachNavigationPolicy(window: BrowserWindow): void {
   });
   window.webContents.on("did-create-window", (childWindow) => {
     attachNavigationPolicy(childWindow);
+    childWindow.webContents.on("did-finish-load", () => void applyAppearance(childWindow));
   });
   window.webContents.on("will-navigate", (event, url) => {
     if (!isMainAppUrl(url)) {
@@ -306,6 +335,7 @@ function createMainWindow(initialUrl = APP_URL): void {
     unreadCount = unreadCountFromTitle(title);
     updateTrayMenu();
   });
+  mainWindow.webContents.on("did-finish-load", () => void applyAppearance(mainWindow as BrowserWindow));
   mainWindow.webContents.on("zoom-changed", () => {
     setTimeout(() => {
       if (!mainWindow || mainWindow.isDestroyed()) return;
@@ -330,10 +360,10 @@ function openSettingsWindow(): void {
   settingsWindow = new BrowserWindow({
     ...(mainWindow ? { parent: mainWindow } : {}),
     title: "WhatsApp Linux Settings",
-    width: 520,
-    height: 570,
-    minWidth: 460,
-    minHeight: 520,
+    width: 1040,
+    height: 820,
+    minWidth: 820,
+    minHeight: 650,
     resizable: true,
     autoHideMenuBar: true,
     webPreferences: {
@@ -347,6 +377,8 @@ function openSettingsWindow(): void {
   void settingsWindow.loadFile(rendererFile("settings.html"));
   settingsWindow.on("closed", () => {
     settingsWindow = null;
+    previewAppearance = null;
+    applyAppearanceToWhatsAppWindows(store.get().appearance);
   });
 }
 
@@ -386,7 +418,62 @@ function registerIpc(): void {
     const updated = store.update(patch);
     session.fromPartition("persist:whatsapp-linux").setSpellCheckerEnabled(updated.spellcheck);
     setAutostart(updated.launchAtLogin, updated.startHidden, configHome());
+    previewAppearance = null;
+    applyAppearanceToWhatsAppWindows(updated.appearance);
     return updated;
+  });
+  ipcMain.handle("appearance:preview", (event, appearance: AppearanceSettings) => {
+    requireLocalUi(event);
+    const validated = validateAppearance(appearance);
+    previewAppearance = validated;
+    applyAppearanceToWhatsAppWindows(validated);
+    return validated;
+  });
+  ipcMain.handle("appearance:select-wallpaper", async (event) => {
+    requireLocalUi(event);
+    const options: Electron.OpenDialogOptions = {
+      title: "Choose a chat wallpaper",
+      properties: ["openFile"],
+      filters: [{ name: "Images", extensions: ["png", "jpg", "jpeg", "webp", "gif"] }]
+    };
+    const result = settingsWindow ? await dialog.showOpenDialog(settingsWindow, options) : await dialog.showOpenDialog(options);
+    const selected = result.filePaths[0];
+    if (result.canceled || !selected) return "";
+    const extension = selected.toLowerCase().match(/\.(png|jpe?g|webp|gif)$/)?.[0];
+    if (!extension) return "";
+    mkdirSync(appearanceDirectory(), { recursive: true });
+    const fileName = `wallpaper${extension}`;
+    copyFileSync(selected, join(appearanceDirectory(), fileName));
+    return fileName;
+  });
+  ipcMain.handle("appearance:clear-wallpaper", (event) => {
+    requireLocalUi(event);
+    const current = store.get().appearance.wallpaperFile;
+    if (current) rmSync(join(appearanceDirectory(), current), { force: true });
+  });
+  ipcMain.handle("appearance:export", async (event, appearance: AppearanceSettings) => {
+    requireLocalUi(event);
+    const options: Electron.SaveDialogOptions = {
+      title: "Export appearance theme",
+      defaultPath: "whatsapp-linux-theme.json",
+      filters: [{ name: "WhatsApp Linux theme", extensions: ["json"] }]
+    };
+    const result = settingsWindow ? await dialog.showSaveDialog(settingsWindow, options) : await dialog.showSaveDialog(options);
+    if (result.canceled || !result.filePath) return false;
+    writeFileSync(result.filePath, `${JSON.stringify(validateAppearance(appearance), null, 2)}\n`, { mode: 0o600 });
+    return true;
+  });
+  ipcMain.handle("appearance:import", async (event) => {
+    requireLocalUi(event);
+    const options: Electron.OpenDialogOptions = {
+      title: "Import appearance theme",
+      properties: ["openFile"],
+      filters: [{ name: "WhatsApp Linux theme", extensions: ["json"] }]
+    };
+    const result = settingsWindow ? await dialog.showOpenDialog(settingsWindow, options) : await dialog.showOpenDialog(options);
+    const selected = result.filePaths[0];
+    if (result.canceled || !selected) return undefined;
+    return validateAppearance(JSON.parse(readFileSync(selected, "utf8")) as unknown);
   });
   ipcMain.handle("app:retry", (event) => {
     requireLocalUi(event);
@@ -421,12 +508,14 @@ if (!hasLock) {
   });
   void app.whenReady().then(() => {
     store = new SettingsStore(join(app.getPath("userData"), "settings.json"));
+    nativeTheme.themeSource = store.get().appearance.nativeTheme;
     app.setAsDefaultProtocolClient("whatsapp");
     registerIpc();
     configureSession();
     createTray();
     const initialLink = extractDeepLink(process.argv);
     createMainWindow(initialLink ? (deepLinkToWeb(initialLink) ?? APP_URL) : APP_URL);
+    if (process.argv.includes("--settings")) openSettingsWindow();
   });
   app.on("before-quit", () => {
     isQuitting = true;

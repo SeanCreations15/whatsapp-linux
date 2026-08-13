@@ -131,3 +131,31 @@ test("shows local recovery UI when the remote application cannot load", async ()
   await page.getByRole("button", { name: "Show diagnostics" }).click();
   await expect(page.locator("#diagnostics")).toContainText("Last error:");
 });
+
+test("previews and saves an appearance preset from Settings", async () => {
+  await stopElectronApp();
+  const environment: Record<string, string> = Object.fromEntries(
+    Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)
+  );
+  delete environment.ELECTRON_RUN_AS_NODE;
+  delete environment.ELECTRON_NO_ATTACH_CONSOLE;
+  environment.WHATSAPP_LINUX_TEST_URL = fixtureUrl;
+  electronApp = await electron.launch({
+    args: [".", `--user-data-dir=${userDataDirectory}`, "--settings"],
+    env: environment
+  });
+  await expect.poll(() => electronApp?.windows().length).toBe(2);
+  const page = electronApp.windows().find((window) => window.url().includes("settings.html"));
+  if (!page) throw new Error("Settings window did not open");
+  await page.getByRole("button", { name: "Themes" }).click();
+  await page.getByRole("button", { name: /Midnight/ }).click();
+  await expect(page.locator('input[name="accentColor"]')).toHaveValue("#53bdeb");
+  await expect(page.locator('input[name="enabled"]')).toBeChecked();
+  await page.getByRole("button", { name: "Save all settings" }).click();
+  await expect(page.locator("#status")).toHaveText("All settings saved");
+  const settingsPath = await electronApp.evaluate(({ app }) => `${app.getPath("userData")}/settings.json`);
+  expect(JSON.parse(readFileSync(settingsPath, "utf8"))).toMatchObject({
+    version: 2,
+    appearance: { enabled: true, preset: "midnight", accentColor: "#53bdeb" }
+  });
+});

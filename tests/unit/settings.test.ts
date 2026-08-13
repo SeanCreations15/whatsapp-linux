@@ -10,7 +10,7 @@ describe("settings validation", () => {
 
   it("migrates partial legacy settings and preserves valid fields", () => {
     expect(validateSettings({ closeBehavior: "tray", spellcheck: false })).toMatchObject({
-      version: 1,
+      version: 2,
       closeBehavior: "tray",
       launchAtLogin: false,
       startHidden: false,

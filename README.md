@@ -23,6 +23,28 @@ and an offline recovery screen.
 - Remembered window geometry, maximized state, and zoom
 - Offline error page with retry and diagnostics
 
+## Appearance Studio
+
+Open **Settings → Themes** to enable local visual customization. The studio
+includes WhatsApp, Midnight, OLED, Nord, Dracula, Solarized, and Rosé Pine
+presets, all of which can be edited further. Controls cover:
+
+- Application, sidebar, panel, composer, text, link, selection, border, accent,
+  and incoming/outgoing message colours
+- Font family, custom installed font, scale, weight, line height, and letter
+  spacing
+- Interface density, sidebar and message width, avatar/bubble/control curves,
+  borders, shadows, and message spacing
+- Solid, gradient, or private local-image wallpapers with fit, position,
+  opacity, blur, overlay, and pattern controls
+- Translucency, panel blur, reduced motion, high contrast, grayscale avatars,
+  monochrome icons, underlined links, and custom scrollbars
+- Sanitized advanced CSS, live preview, reset, and JSON theme import/export
+
+Appearance changes apply only to this desktop client. WhatsApp can change its
+web design tokens or internal markup, so very specific advanced CSS may need
+maintenance after upstream interface updates.
+
 Features available inside chats are determined by WhatsApp Web. This project
 does not promise features exclusive to Meta's native Windows application.
 
@@ -44,7 +66,7 @@ npm run build
 npm run package:appimage
 ```
 
-The app accepts `--hidden` and `whatsapp://…` arguments:
+The app accepts `--hidden`, `--settings`, and `whatsapp://…` arguments:
 
 ```sh
 npm start -- --hidden
