@@ -69,6 +69,7 @@ const presetPalettes: Record<Exclude<AppearancePreset, "custom">, Partial<Appear
 
 let currentAppearance: AppearanceSettings;
 let previewTimer: ReturnType<typeof setTimeout> | undefined;
+let previewRevision = 0;
 const settings = await window.whatsappLinux.getSettings();
 
 closeBehavior.value = settings.closeBehavior;
@@ -131,14 +132,19 @@ function updatePresetSelection(): void {
 }
 
 function previewSoon(): void {
+  const revision = ++previewRevision;
   if (previewTimer) clearTimeout(previewTimer);
   previewTimer = setTimeout(async () => {
+    previewTimer = undefined;
     currentAppearance = readAppearance();
     updateOutputs();
     try {
-      currentAppearance = await window.whatsappLinux.previewAppearance(currentAppearance);
+      const previewed = await window.whatsappLinux.previewAppearance(currentAppearance);
+      if (revision !== previewRevision) return;
+      currentAppearance = previewed;
       status.textContent = "Previewing unsaved changes";
     } catch {
+      if (revision !== previewRevision) return;
       status.textContent = "Preview failed";
     }
   }, 100);
@@ -211,6 +217,11 @@ document.querySelector("#import-theme")?.addEventListener("click", async () => {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  previewRevision += 1;
+  if (previewTimer) {
+    clearTimeout(previewTimer);
+    previewTimer = undefined;
+  }
   const button = form.querySelector<HTMLButtonElement>("button[type=submit]");
   if (button) button.disabled = true;
   status.textContent = "Saving…";
