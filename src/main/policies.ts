@@ -1,6 +1,11 @@
 const APP_ORIGIN = "https://web.whatsapp.com";
 const TRUSTED_HOST_SUFFIXES = [".whatsapp.com", ".whatsapp.net"];
 
+export function chromeCompatibleUserAgent(chromeVersion: string): string {
+  const version = /^\d+(?:\.\d+){0,3}$/.test(chromeVersion) ? chromeVersion : "150.0.0.0";
+  return `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${version} Safari/537.36`;
+}
+
 export function isTrustedWhatsAppUrl(rawUrl: string): boolean {
   try {
     const url = new URL(rawUrl);

@@ -81,6 +81,9 @@ test("keeps Node and the local preload API out of remote content", async () => {
   await expect(page.locator("#ready")).toBeVisible();
   expect(await page.evaluate(() => typeof (globalThis as { require?: unknown }).require)).toBe("undefined");
   expect(await page.evaluate(() => typeof (globalThis as { whatsappLinux?: unknown }).whatsappLinux)).toBe("undefined");
+  const userAgent = await page.evaluate(() => navigator.userAgent);
+  expect(userAgent).toContain("Chrome/150.0.7871.224");
+  expect(userAgent).not.toContain("Electron");
 });
 
 test("denies unsafe popup protocols", async () => {
@@ -93,6 +96,8 @@ test("denies unsafe popup protocols", async () => {
 
 test("applies and persists the first-close tray choice", async () => {
   if (!electronApp) throw new Error("Electron did not start");
+  const page = await electronApp.firstWindow();
+  await expect(page.locator("#ready")).toBeVisible();
   const settingsPath = await electronApp.evaluate(({ app }) => `${app.getPath("userData")}/settings.json`);
   await electronApp.evaluate(({ BrowserWindow }) => {
     BrowserWindow.getAllWindows()[0]?.close();

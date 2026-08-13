@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  chromeCompatibleUserAgent,
   extractDeepLink,
   isAllowedPermission,
   isDeepLink,
@@ -9,6 +10,18 @@ import {
   shouldHideOnClose,
   unreadCountFromTitle
 } from "../../src/main/policies";
+
+describe("browser identity", () => {
+  it("uses the embedded Chromium version without exposing Electron", () => {
+    const userAgent = chromeCompatibleUserAgent("150.0.7871.224");
+    expect(userAgent).toContain("Chrome/150.0.7871.224");
+    expect(userAgent).not.toContain("Electron");
+  });
+
+  it("falls back safely when given an invalid version", () => {
+    expect(chromeCompatibleUserAgent("invalid")).toContain("Chrome/150.0.0.0");
+  });
+});
 
 describe("navigation policy", () => {
   it.each([

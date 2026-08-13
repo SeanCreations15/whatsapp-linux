@@ -18,6 +18,7 @@ import {
 import type { AppSettings } from "../shared/settings";
 import { setAutostart } from "./autostart";
 import {
+  chromeCompatibleUserAgent,
   extractDeepLink,
   isAllowedPermission,
   isDeepLink,
@@ -34,10 +35,12 @@ const APP_URL = !app.isPackaged && process.env.WHATSAPP_LINUX_TEST_URL
   : "https://web.whatsapp.com/";
 const APP_ID = "whatsapp-linux";
 const currentDirectory = fileURLToPath(new URL(".", import.meta.url));
+const browserUserAgent = chromeCompatibleUserAgent(process.versions.chrome);
 
 app.setName("WhatsApp Linux");
 app.setDesktopName(`${APP_ID}.desktop`);
 app.setAppUserModelId(APP_ID);
+app.userAgentFallback = browserUserAgent;
 app.commandLine.appendSwitch("enable-features", "WebRTCPipeWireCapturer");
 
 let mainWindow: BrowserWindow | null = null;
@@ -349,6 +352,7 @@ function openSettingsWindow(): void {
 
 function configureSession(): void {
   const appSession = session.fromPartition("persist:whatsapp-linux");
+  appSession.setUserAgent(browserUserAgent);
   appSession.setSpellCheckerEnabled(store.get().spellcheck);
   appSession.setPermissionCheckHandler((_webContents, permission, requestingOrigin) =>
     isAllowedPermission(permission, requestingOrigin)
