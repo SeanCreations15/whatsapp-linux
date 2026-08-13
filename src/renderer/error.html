@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'" />
+    <title>WhatsApp Linux — Connection problem</title>
+    <link rel="stylesheet" href="./base.css" />
+  </head>
+  <body>
+    <main>
+      <header class="brand"><img src="./icon.svg" alt="" /><h1>Unable to reach WhatsApp</h1></header>
+      <section class="card">
+        <h2>Check your connection and try again</h2>
+        <p>WhatsApp Linux could not load the official web application. Your linked-device session has not been removed.</p>
+        <div class="actions"><button id="retry" class="primary" type="button">Retry</button><button id="diagnose" type="button">Show diagnostics</button></div>
+        <p id="status" class="status" role="status"></p>
+        <div id="diagnostics" class="diagnostics" hidden></div>
+      </section>
+    </main>
+    <script type="module" src="./error.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+{
+  "name": "whatsapp-linux",
+  "version": "0.1.0",
+  "description": "An unofficial WhatsApp Web desktop client for Arch Linux",
+  "homepage": "https://github.com/SeanCreations15/whatsapp-linux#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SeanCreations15/whatsapp-linux.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SeanCreations15/whatsapp-linux/issues"
+  },
+  "license": "MIT",
+  "author": "WhatsApp Linux contributors",
+  "main": "out/main/main.js",
+  "desktopName": "whatsapp-linux.desktop",
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "npm run build && playwright test",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "package:appimage": "npm run build && electron-builder --linux AppImage",
+    "package:dir": "npm run build && electron-builder --linux dir"
+  },
+  "build": {
+    "appId": "whatsapp-linux",
+    "productName": "WhatsApp Linux",
+    "asar": true,
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets",
+        "to": "assets",
+        "filter": ["**/*"]
+      }
+    ],
+    "linux": {
+      "syncDesktopName": true,
+      "target": ["AppImage"],
+      "category": "Network;Chat",
+      "icon": "assets/icon.png",
+      "executableName": "whatsapp-linux",
+      "desktop": {
+        "entry": {
+          "Name": "WhatsApp Linux",
+          "Comment": "Unofficial WhatsApp Web desktop client",
+          "StartupWMClass": "whatsapp-linux",
+          "MimeType": "x-scheme-handler/whatsapp;"
+        }
+      },
+      "artifactName": "WhatsApp-Linux-${version}-${arch}.${ext}"
+    },
+    "appImage": {
+      "category": "Network"
+    }
+  },
+  "devDependencies": {
+    "@electron/asar": "^4.0.1",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.62.1",
+    "@types/node": "^24.0.0",
+    "electron": "43.4.0",
+    "electron-builder": "26.15.3",
+    "electron-vite": "5.0.0",
+    "eslint": "10.8.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.67.0",
+    "vite": "^7.0.0",
+    "vitest": "4.1.10"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

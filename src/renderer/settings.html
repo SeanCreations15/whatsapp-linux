@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'" />
+    <title>WhatsApp Linux Settings</title>
+    <link rel="stylesheet" href="./base.css" />
+  </head>
+  <body>
+    <main>
+      <header class="brand">
+        <img src="./icon.svg" alt="" />
+        <div><h1>Settings</h1><p>WhatsApp Linux desktop preferences</p></div>
+      </header>
+      <form id="settings-form" class="card">
+        <div class="field">
+          <label for="close-behavior">When I close the window</label>
+          <select id="close-behavior" name="closeBehavior">
+            <option value="ask">Ask me</option>
+            <option value="tray">Keep running in the tray</option>
+            <option value="quit">Quit the application</option>
+          </select>
+        </div>
+        <div class="field check">
+          <input id="launch-at-login" name="launchAtLogin" type="checkbox" />
+          <div><label for="launch-at-login">Launch at login</label><div class="hint">Create an XDG autostart entry for your desktop session.</div></div>
+        </div>
+        <div class="field check">
+          <input id="start-hidden" name="startHidden" type="checkbox" />
+          <div><label for="start-hidden">Start hidden</label><div class="hint">When launched at login, remain in the tray until opened.</div></div>
+        </div>
+        <div class="field check">
+          <input id="spellcheck" name="spellcheck" type="checkbox" />
+          <div><label for="spellcheck">Enable spell checking</label><div class="hint">Changes apply immediately to the persistent WhatsApp session.</div></div>
+        </div>
+        <div class="actions"><button class="primary" type="submit">Save settings</button><span id="status" class="status" role="status"></span></div>
+      </form>
+      <p class="disclaimer">Unofficial software. Not affiliated with, authorized, maintained, sponsored, or endorsed by WhatsApp LLC or Meta Platforms, Inc.</p>
+    </main>
+    <script type="module" src="./settings.ts"></script>
+  </body>
+</html>
