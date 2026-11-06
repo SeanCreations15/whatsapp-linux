@@ -82,7 +82,8 @@ test("keeps Node and the local preload API out of remote content", async () => {
   expect(await page.evaluate(() => typeof (globalThis as { require?: unknown }).require)).toBe("undefined");
   expect(await page.evaluate(() => typeof (globalThis as { whatsappLinux?: unknown }).whatsappLinux)).toBe("undefined");
   const userAgent = await page.evaluate(() => navigator.userAgent);
-  expect(userAgent).toContain("Chrome/150.0.7871.224");
+  const chromeVersion = await electronApp.evaluate(() => process.versions.chrome);
+  expect(userAgent).toContain(`Chrome/${chromeVersion}`);
   expect(userAgent).not.toContain("Electron");
 });
 
