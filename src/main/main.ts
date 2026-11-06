@@ -196,6 +196,7 @@ function attachNavigationPolicy(window: BrowserWindow): void {
           contextIsolation: true,
           nodeIntegration: false,
           webSecurity: true,
+          spellcheck: true,
           partition: "persist:whatsapp-linux"
         }
       }
@@ -203,6 +204,7 @@ function attachNavigationPolicy(window: BrowserWindow): void {
   });
   window.webContents.on("did-create-window", (childWindow) => {
     attachNavigationPolicy(childWindow);
+    attachSpellcheckMenu(childWindow);
     childWindow.webContents.on("did-finish-load", () => void applyAppearance(childWindow));
   });
   window.webContents.on("will-navigate", (event, url) => {
@@ -211,6 +213,36 @@ function attachNavigationPolicy(window: BrowserWindow): void {
       if (isTrustedWhatsAppUrl(url)) void window.loadURL(url);
       else if (isSafeExternalUrl(url)) void shell.openExternal(url);
     }
+  });
+}
+
+function attachSpellcheckMenu(window: BrowserWindow): void {
+  window.webContents.on("context-menu", (_event, params) => {
+    if (!params.isEditable) return;
+    const menuItems: Electron.MenuItemConstructorOptions[] = [];
+    if (window.webContents.session.isSpellCheckerEnabled() && params.misspelledWord) {
+      for (const suggestion of params.dictionarySuggestions) {
+        menuItems.push({
+          label: suggestion,
+          click: () => window.webContents.replaceMisspelling(suggestion)
+        });
+      }
+      if (params.dictionarySuggestions.length === 0) {
+        menuItems.push({ label: "No spelling suggestions", enabled: false });
+      }
+      menuItems.push({
+        label: "Add to dictionary",
+        click: () => window.webContents.session.addWordToSpellCheckerDictionary(params.misspelledWord)
+      });
+      menuItems.push({ type: "separator" });
+    }
+    menuItems.push(
+      { role: "cut" },
+      { role: "copy" },
+      { role: "paste" },
+      { role: "selectAll" }
+    );
+    Menu.buildFromTemplate(menuItems).popup({ window });
   });
 }
 
@@ -289,13 +321,14 @@ function createMainWindow(initialUrl = APP_URL): void {
       contextIsolation: true,
       nodeIntegration: false,
       webSecurity: true,
-      spellcheck: settings.spellcheck,
+      spellcheck: true,
       partition: "persist:whatsapp-linux"
     }
   });
   if (settings.window.maximized) mainWindow.maximize();
   mainWindow.webContents.setZoomFactor(settings.window.zoomFactor);
   attachNavigationPolicy(mainWindow);
+  attachSpellcheckMenu(mainWindow);
   mainWindow.once("ready-to-show", () => {
     if (!process.argv.includes("--hidden")) showMainWindow();
   });
@@ -385,7 +418,7 @@ function openSettingsWindow(): void {
 function configureSession(): void {
   const appSession = session.fromPartition("persist:whatsapp-linux");
   appSession.setUserAgent(browserUserAgent);
-  appSession.setSpellCheckerEnabled(store.get().spellcheck);
+  configureSpellChecker();
   appSession.setPermissionCheckHandler((_webContents, permission, requestingOrigin) =>
     isAllowedPermission(permission, requestingOrigin)
   );
@@ -408,15 +441,28 @@ function configureSession(): void {
   });
 }
 
+function configureSpellChecker(): void {
+  const appSession = session.fromPartition("persist:whatsapp-linux");
+  const preferred = store.get().spellcheckLanguage;
+  const available = appSession.availableSpellCheckerLanguages;
+  const language = [preferred, "en-GB", "en-US"].find((candidate) => available.includes(candidate));
+  if (language) appSession.setSpellCheckerLanguages([language]);
+  appSession.setSpellCheckerEnabled(store.get().spellcheck);
+}
+
 function registerIpc(): void {
   ipcMain.handle("settings:get", (event) => {
     requireLocalUi(event);
     return store.get();
   });
+  ipcMain.handle("spellcheck:languages", (event) => {
+    requireLocalUi(event);
+    return session.fromPartition("persist:whatsapp-linux").availableSpellCheckerLanguages;
+  });
   ipcMain.handle("settings:save", (event, patch: Partial<AppSettings>) => {
     requireLocalUi(event);
     const updated = store.update(patch);
-    session.fromPartition("persist:whatsapp-linux").setSpellCheckerEnabled(updated.spellcheck);
+    configureSpellChecker();
     setAutostart(updated.launchAtLogin, updated.startHidden, configHome());
     previewAppearance = null;
     applyAppearanceToWhatsAppWindows(updated.appearance);

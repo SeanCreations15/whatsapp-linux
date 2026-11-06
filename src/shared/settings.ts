@@ -78,6 +78,7 @@ export interface AppSettings {
   launchAtLogin: boolean;
   startHidden: boolean;
   spellcheck: boolean;
+  spellcheckLanguage: string;
   appearance: AppearanceSettings;
   window: WindowState;
 }
@@ -148,6 +149,7 @@ export const defaultSettings: AppSettings = {
   launchAtLogin: false,
   startHidden: false,
   spellcheck: true,
+  spellcheckLanguage: "en-GB",
   appearance: structuredClone(defaultAppearance),
   window: {
     width: 1200,
@@ -245,6 +247,9 @@ export function validateSettings(value: unknown): AppSettings {
       typeof input.launchAtLogin === "boolean" ? input.launchAtLogin : false,
     startHidden: typeof input.startHidden === "boolean" ? input.startHidden : false,
     spellcheck: typeof input.spellcheck === "boolean" ? input.spellcheck : true,
+    spellcheckLanguage: typeof input.spellcheckLanguage === "string" && /^[a-z]{2,3}(?:-[A-Z]{2})?$/.test(input.spellcheckLanguage)
+      ? input.spellcheckLanguage
+      : defaultSettings.spellcheckLanguage,
     appearance: validateAppearance(input.appearance),
     window: {
       width,

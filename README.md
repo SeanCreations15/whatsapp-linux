@@ -15,7 +15,8 @@ and an offline recovery screen.
 
 - Persistent WhatsApp Web session in a sandboxed Electron partition
 - Native tray with unread count, reload, settings, and explicit quit
-- Configurable close behavior, launch at login, start hidden, and spellcheck
+- Configurable close behavior, launch at login, start hidden, and spell checking
+- Selectable spelling dictionary and right-click corrections in message fields
 - Camera, microphone, notifications, downloads, and PipeWire screen sharing
 - `whatsapp://` deep-link and single-instance support
 - Strict navigation, origin-scoped permissions, and no Node.js access from the

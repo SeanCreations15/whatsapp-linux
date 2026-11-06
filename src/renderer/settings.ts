@@ -12,6 +12,7 @@ const closeBehavior = required<HTMLSelectElement>("#close-behavior");
 const launchAtLogin = required<HTMLInputElement>("#launch-at-login");
 const startHidden = required<HTMLInputElement>("#start-hidden");
 const spellcheck = required<HTMLInputElement>("#spellcheck");
+const spellcheckLanguage = required<HTMLSelectElement>("#spellcheck-language");
 const status = required<HTMLElement>("#status");
 const wallpaperName = required<HTMLElement>("#wallpaper-name");
 
@@ -76,6 +77,17 @@ closeBehavior.value = settings.closeBehavior;
 launchAtLogin.checked = settings.launchAtLogin;
 startHidden.checked = settings.startHidden;
 spellcheck.checked = settings.spellcheck;
+const availableLanguages = await window.whatsappLinux.getSpellcheckLanguages();
+for (const language of availableLanguages) {
+  spellcheckLanguage.add(new Option(language, language));
+}
+spellcheckLanguage.value = availableLanguages.includes(settings.spellcheckLanguage)
+  ? settings.spellcheckLanguage
+  : availableLanguages[0] ?? "";
+spellcheckLanguage.disabled = !spellcheck.checked || availableLanguages.length === 0;
+spellcheck.addEventListener("change", () => {
+  spellcheckLanguage.disabled = !spellcheck.checked || availableLanguages.length === 0;
+});
 startHidden.disabled = !launchAtLogin.checked;
 
 function appearanceControls(): Array<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement> {
@@ -231,6 +243,7 @@ form.addEventListener("submit", async (event) => {
       launchAtLogin: launchAtLogin.checked,
       startHidden: startHidden.checked,
       spellcheck: spellcheck.checked,
+      spellcheckLanguage: spellcheckLanguage.value || settings.spellcheckLanguage,
       appearance: readAppearance()
     });
     renderAppearance(updated.appearance);

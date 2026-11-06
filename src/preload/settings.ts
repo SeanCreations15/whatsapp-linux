@@ -10,6 +10,7 @@ export interface Diagnostics {
 
 export interface LocalAppApi {
   getSettings: () => Promise<AppSettings>;
+  getSpellcheckLanguages: () => Promise<string[]>;
   saveSettings: (patch: Partial<AppSettings>) => Promise<AppSettings>;
   previewAppearance: (appearance: AppearanceSettings) => Promise<AppearanceSettings>;
   selectWallpaper: () => Promise<string>;
@@ -22,6 +23,7 @@ export interface LocalAppApi {
 
 const api: LocalAppApi = {
   getSettings: () => ipcRenderer.invoke("settings:get") as Promise<AppSettings>,
+  getSpellcheckLanguages: () => ipcRenderer.invoke("spellcheck:languages") as Promise<string[]>,
   saveSettings: (patch) => ipcRenderer.invoke("settings:save", patch) as Promise<AppSettings>,
   previewAppearance: (appearance) => ipcRenderer.invoke("appearance:preview", appearance) as Promise<AppearanceSettings>,
   selectWallpaper: () => ipcRenderer.invoke("appearance:select-wallpaper") as Promise<string>,

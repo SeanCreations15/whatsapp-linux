@@ -86,6 +86,51 @@ test("keeps Node and the local preload API out of remote content", async () => {
   expect(userAgent).not.toContain("Electron");
 });
 
+test("uses the selected spelling language and toggles checking from Settings", async () => {
+  await stopElectronApp();
+  const environment: Record<string, string> = Object.fromEntries(
+    Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)
+  );
+  delete environment.ELECTRON_RUN_AS_NODE;
+  delete environment.ELECTRON_NO_ATTACH_CONSOLE;
+  environment.WHATSAPP_LINUX_TEST_URL = fixtureUrl;
+  electronApp = await electron.launch({
+    args: [".", `--user-data-dir=${userDataDirectory}`, "--settings"],
+    env: environment
+  });
+  await expect.poll(() => electronApp?.windows().length).toBe(2);
+  const settingsPage = electronApp.windows().find((window) => window.url().includes("settings.html"));
+  if (!settingsPage) throw new Error("Settings window did not open");
+  const language = settingsPage.locator("#spellcheck-language");
+  await expect(language).toHaveValue("en-GB");
+  const enabled = () => electronApp?.evaluate(({ session }) =>
+    session.fromPartition("persist:whatsapp-linux").isSpellCheckerEnabled()
+  );
+  const selectedLanguages = () => electronApp?.evaluate(({ session }) =>
+    session.fromPartition("persist:whatsapp-linux").getSpellCheckerLanguages()
+  );
+  expect(await selectedLanguages()).toContain("en-GB");
+  expect(await enabled()).toBe(true);
+
+  await settingsPage.locator("#spellcheck").uncheck();
+  await settingsPage.getByRole("button", { name: "Save all settings" }).click();
+  await expect.poll(enabled).toBe(false);
+  await settingsPage.locator("#spellcheck").check();
+  await language.selectOption("en-US");
+  await settingsPage.getByRole("button", { name: "Save all settings" }).click();
+  await expect.poll(enabled).toBe(true);
+  await expect.poll(selectedLanguages).toContain("en-US");
+
+  const appPage = electronApp.windows().find((window) => window.url() === fixtureUrl);
+  if (!appPage) throw new Error("App window did not open");
+  const contextMenu = electronApp.evaluate(({ BrowserWindow }) => new Promise<boolean>((resolve) => {
+    BrowserWindow.getAllWindows().find((window) => window.webContents.getURL().startsWith("http:"))
+      ?.webContents.once("context-menu", (_event, params) => resolve(params.isEditable));
+  }));
+  await appPage.locator("#message").click({ button: "right" });
+  expect(await contextMenu).toBe(true);
+});
+
 test("denies unsafe popup protocols", async () => {
   if (!electronApp) throw new Error("Electron did not start");
   const page = await electronApp.firstWindow();

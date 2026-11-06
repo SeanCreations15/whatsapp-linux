@@ -16,6 +16,8 @@ describe("settings validation", () => {
       startHidden: false,
       spellcheck: false
     });
+    expect(validateSettings({})).toMatchObject({ spellcheckLanguage: "en-GB" });
+    expect(validateSettings({ spellcheckLanguage: "invalid-language" }).spellcheckLanguage).toBe("en-GB");
   });
 
   it("clamps unsafe window values", () => {
